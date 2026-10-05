@@ -1,0 +1,37 @@
+# Suppliers the scraper knows about.
+#
+# To add a supplier (e.g. Travis Perkins):
+#   1. Add an entry below. `url_column` must match a column header on the Items tab.
+#   2. Add that column to the Items tab and paste product URLs into it.
+#   3. Run a refresh. If prices come back "failed: no JSON-LD price", fill in the
+#      `selectors` block so the browser fallback can read the page.
+#
+# Fields:
+#   key               short id; also names the optional Items column <key>_pack_qty
+#   name              display name written to the Prices and Quote tabs
+#   url_column        Items tab column holding this supplier's product URLs
+#   prices_include_vat  true for retail sites showing inc-VAT prices
+#   allowed_sellers   if set, only offers from these sellers count (filters out marketplace listings)
+#   delay_seconds     [min, max] random pause between requests to this supplier
+#   selectors         CSS selectors for the headless-browser fallback (only used when
+#                     JSON-LD is missing; checked against live pages Oct 2026)
+
+suppliers:
+  - key: wickes
+    name: Wickes
+    url_column: wickes_url
+    prices_include_vat: true
+    delay_seconds: [3, 5]
+    selectors:
+      price: ".main-price__value"
+      title: "h1"
+
+  - key: bq
+    name: B&Q
+    url_column: bq_url
+    prices_include_vat: true
+    allowed_sellers: ["B&Q"]
+    delay_seconds: [3, 5]
+    selectors:
+      price: "[data-testid='primary-price']"
+      title: "h1"

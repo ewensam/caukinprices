@@ -1,0 +1,40 @@
+name: Refresh prices
+
+on:
+  repository_dispatch:
+    types: [refresh-prices]   # sent by the sheet's Prices > Refresh prices menu
+  workflow_dispatch:          # manual "Run workflow" button in GitHub
+
+concurrency:
+  group: refresh-prices      # a double-click on the menu won't run two scrapes at once
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install ".[browser]"
+
+      - name: Cache Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install headless Chromium (fallback scraper)
+        run: python -m playwright install --with-deps chromium
+
+      - name: Refresh prices
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+        run: caukin refresh
