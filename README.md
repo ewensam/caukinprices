@@ -87,11 +87,11 @@ In the GitHub repo, go to **Actions > "Set up sheet (one-time)" > Run workflow**
 
 ### 8. Add the menu to the sheet
 1. In the Google Sheet, go to **Extensions > Apps Script**.
-2. Delete what's in the editor, paste in everything from [`apps_script/Code.gs`](apps_script/Code.gs), and click **Save**.
+2. Delete what's in the editor, paste in everything from [`apps_script/Code.gs`](apps_script/Code.gs), and click **Save**. Use the **copy button** at the top right of the file on GitHub rather than selecting text by hand. A line cut short during the paste gives errors like `Cannot read properties of undefined (reading 'getProperty')`.
 3. Click the **cog (Project Settings)**, scroll to **Script Properties**, and add:
    - `GITHUB_TOKEN`: the token from step 7.
    - `GITHUB_REPO`: `owner/repo` from step 1.
-4. Close the Apps Script tab and reload the sheet. A **Prices** menu appears.
+4. Close the Apps Script tab and reload the sheet. After a few seconds a **Prices** menu appears in the top menu bar, to the right of **Help**.
 5. Click **Prices > Refresh prices**. The first time, Google asks you to authorise the script: click **Advanced > Go to (project) > Allow**. This is your own script.
 
 ### 9. Check it works
@@ -101,6 +101,10 @@ After about 2 minutes:
 - **Quote** shows the stud-wall sample with a supplier and price on each line.
 
 If nothing happens, look at **Actions** in GitHub. Each run's log lists every failure and its reason.
+
+## Maintenance
+- **The GitHub token expires** (set in step 7). When it does, the button shows "GitHub refused the request (HTTP 401)". Generate a new token the same way and replace `GITHUB_TOKEN` in Script Properties.
+- If GitHub Actions is slow to start, check githubstatus.com: runner delays there are outside this project's control.
 
 ## Adding a new item
 Follow **How To** in the sheet. In short: write a precise spec, find the matching product page at each supplier (for B&Q, make sure it's sold by B&Q), paste the URLs, and set `canonical_unit` and `pack_qty`. If a supplier has no true match, leave its URL blank and say why in `notes`.
