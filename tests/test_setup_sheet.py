@@ -1,17 +1,17 @@
 import csv
 
-from caukin.config import load_suppliers
+from caukin.config import load_suppliers, project_file
 from caukin.layout import ITEMS_CORE, QUOTE_FIRST_ROW, QUOTE_LINES
 from caukin.setup_sheet import SAMPLE_QUOTE, STARTER_CSV, items_headers, quote_row, quote_values
 
 
 def starter_rows():
-    with STARTER_CSV.open(encoding="utf-8") as f:
+    with project_file(*STARTER_CSV).open(encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
 
 def test_starter_csv_matches_items_layout():
-    with STARTER_CSV.open(encoding="utf-8") as f:
+    with project_file(*STARTER_CSV).open(encoding="utf-8") as f:
         header = next(csv.reader(f))
     assert header == items_headers(load_suppliers())
     assert header[:8] == ITEMS_CORE  # Quote formulas use Items!A:H by position
@@ -49,3 +49,11 @@ def test_quote_layout_totals():
     totals = rows[-3:]
     assert totals[0][9] == f"=SUM(J{QUOTE_FIRST_ROW}:J{last})"
     assert totals[2][8] == "Total inc VAT"
+
+
+def test_project_files_found_from_working_directory(tmp_path, monkeypatch):
+    # In CI the package is installed into site-packages, so repo files must be found via cwd.
+    (tmp_path / "suppliers.yaml").write_text(
+        "suppliers:\n  - {key: tp, name: Travis Perkins, url_column: tp_url}\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    assert [s.key for s in load_suppliers()] == ["tp"]

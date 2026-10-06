@@ -4,19 +4,18 @@ Safe to re-run: tabs that already exist are left alone.
 """
 
 import csv
-from pathlib import Path
 
 import gspread
 from gspread.utils import ValueInputOption
 
-from caukin.config import Supplier
+from caukin.config import Supplier, project_file
 from caukin.howto import HOW_TO_TEXT
 from caukin.layout import (
     HOW_TO, ITEMS, ITEMS_CORE, ITEMS_TAIL, PRICES, PRICES_HEADERS, QUOTE, QUOTE_FIRST_ROW,
     QUOTE_LINES, SETTINGS, SETTINGS_ROWS, SHEET_DATETIME_PATTERN, supplier_pack_column,
 )
 
-STARTER_CSV = Path(__file__).resolve().parents[2] / "data" / "starter_items.csv"
+STARTER_CSV = ("data", "starter_items.csv")
 QUOTE_HEADERS = ["item_code", "description", "qty", "unit", "waste %", "cheapest unit price (ex VAT)",
                  "cheapest supplier", "materials cost", "markup %", "sell price (ex VAT)"]
 GBP = "£#,##0.00"
@@ -115,7 +114,7 @@ def _freeze(ws, rows: int) -> dict:
 
 
 def _load_starter(headers: list[str]) -> list[list[str]]:
-    with STARTER_CSV.open(encoding="utf-8") as f:
+    with project_file(*STARTER_CSV).open(encoding="utf-8") as f:
         return [[row.get(h, "") for h in headers] for row in csv.DictReader(f)]
 
 

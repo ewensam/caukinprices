@@ -5,7 +5,13 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, Field
 
-DEFAULT_PATH = Path(__file__).resolve().parents[2] / "suppliers.yaml"
+def project_file(*parts: str) -> Path:
+    """Locate a repo data file (suppliers.yaml, data/...). These live in the checkout, not
+    the installed package, so look in the working directory first, then the source tree."""
+    for base in (Path.cwd(), Path(__file__).resolve().parents[2]):
+        if (p := base.joinpath(*parts)).exists():
+            return p
+    raise FileNotFoundError(f"{Path(*parts)} not found - run caukin from the project folder")
 
 
 class Selectors(BaseModel):
@@ -27,6 +33,7 @@ class SuppliersFile(BaseModel):
     suppliers: list[Supplier]
 
 
-def load_suppliers(path: Path = DEFAULT_PATH) -> list[Supplier]:
+def load_suppliers(path: Path | None = None) -> list[Supplier]:
+    path = path or project_file("suppliers.yaml")
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     return SuppliersFile.model_validate(data).suppliers

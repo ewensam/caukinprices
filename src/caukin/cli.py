@@ -80,9 +80,10 @@ def preview(csv_path: str | None, vat: float, no_browser: bool) -> None:
     """Dry run: scrape every URL in an Items CSV and print prices. No Google Sheet needed."""
     import csv
 
+    from caukin.config import project_file
     from caukin.setup_sheet import STARTER_CSV
 
-    with open(csv_path or STARTER_CSV, encoding="utf-8") as f:
+    with open(csv_path or project_file(*STARTER_CSV), encoding="utf-8") as f:
         items = list(csv.DictReader(f))
     session = requests.Session()
     rows, summary = run_refresh(
